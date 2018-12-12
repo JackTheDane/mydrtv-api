@@ -1,5 +1,11 @@
 <?php
 
+// require_once 'vendor/autoload.php';
+
+
+// $query = "MATCH (n:Person)-[:FOLLOWS]->(friend) RETURN n.name, collect(friend) as friends";
+// $result = $client->run($query);
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
