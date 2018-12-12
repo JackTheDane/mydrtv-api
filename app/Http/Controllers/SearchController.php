@@ -67,6 +67,8 @@ class SearchController extends Controller {
    */
   public function getByYear($year) {
     $videos = Video::where('release_date', 'like', "$year%")
+      ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
+      ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
       ->get();
 
     return $videos;
@@ -84,7 +86,15 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByGenreYear($genre, $year) {
-    return "Genre: $genre. Year: $year";
+    $decodedGenre = urldecode($genre);
+
+    $videos = Genre::where('name', '=', $decodedGenre)
+      ->first()
+      ->videos()
+      ->where('release_date', 'like', "$year%")
+      ->get();
+
+    return $videos;
   }
 
    /**
