@@ -22,10 +22,10 @@ class SearchController extends Controller {
     // $videos = Video::all(); // Gets all the videos
     $decodedQuery = urldecode($query);
 
-    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'name as genres')
+    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'genres.name as genres')
+      ->where('title', 'like', "%$decodedQuery%")
       ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
       ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
-      ->where('title', 'like', "%$decodedQuery%")
       ->get();
 
     return $videos;
@@ -68,6 +68,7 @@ class SearchController extends Controller {
   public function getByYear($year) {
     return "Year: $year";
   }
+  
 
   // ---- Combined query, year and genre methods ---- //
 
