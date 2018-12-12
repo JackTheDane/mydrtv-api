@@ -105,7 +105,19 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByQueryGenre($query, $genre) {
-    return "Query: $query. Genre: $genre";
+    $decodedQuery = urldecode($query);
+    $decodedGenre = urldecode($genre);
+
+    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'genres.name as genres')
+      ->where('title', 'like', "%$decodedQuery%")
+      ->join('video_genre', 'videos.id', '=', 'video_genre.video_id')
+      ->join('genres', function($q) use ($decodedGenre) {
+        $q->on('genres.id', '=', 'video_genre.genre_id')
+          ->where('genres.name', '=', $decodedGenre);
+      })
+      ->get();
+    
+    return $videos;
   }
 
   /**
