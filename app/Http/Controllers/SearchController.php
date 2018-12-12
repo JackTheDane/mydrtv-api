@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 
+use App\Video;
+use App\Genre;
+
 class SearchController extends Controller {
 
 
@@ -16,7 +19,16 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByQuery($query) {
-    return $query;
+    // $videos = Video::all(); // Gets all the videos
+    $decodedQuery = urldecode($query);
+
+    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'name as genres')
+      ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
+      ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
+      ->where('title', 'like', "%$decodedQuery%")
+      ->get();
+
+    return $videos;
   }
 
   // ---- Genre methods ---- //
@@ -29,7 +41,19 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByGenre($genre) {
-    return "Genre: $genre";
+    $decodedGenre = urldecode($genre);
+
+// select('title', 'description', 'length', 'release_date', 'poster_path', 'name as genres')
+
+    $videos = Genre::where('name', $decodedGenre)
+      ->first()
+      ->videos()
+      ->select('videos.id', 'title', 'description', 'length', 'release_date', 'poster_path')
+      ->get();
+
+    return $videos;
+
+    // return "Genre: $genre";
   }
 
   // ---- Year methods ---- //
