@@ -66,7 +66,10 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByYear($year) {
-    return "Year: $year";
+    $videos = Video::where('release_date', 'like', "$year%")
+      ->get();
+
+    return $videos;
   }
   
 
