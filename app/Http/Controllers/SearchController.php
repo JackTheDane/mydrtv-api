@@ -106,7 +106,17 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByQueryYear($query, $year) {
-    return "Query: $query. Year: $year";
+    $decodedQuery = urldecode($query);
+
+    $videos = Video::where([
+      ['title', 'like', "%$decodedQuery%"],
+      ['release_date', 'like', "$year%"]
+    ])
+    ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
+    ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
+    ->get();
+    
+    return $videos;
   }
 
   /**
