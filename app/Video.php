@@ -18,7 +18,9 @@ class Video extends Model
       'title', 
       'description',
       'release_date',
-      'poster_path'
+      'poster_path',
+      'backdrop_path',
+      'runtime'
   ];
 
   /**

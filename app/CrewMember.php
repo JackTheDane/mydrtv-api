@@ -22,8 +22,7 @@ class CrewMember extends Model {
    */
   protected $fillable = [
       'name',
-      'image_path',
-      'crewrole_id'
+      'image_path'
   ];
 
   /**
