@@ -29,10 +29,23 @@ class SearchController extends Controller {
     return $videos->where('title', 'like', "%$decodedQuery%")->get();
   }
 
+
+  /**
+   * Get the first videos, based on the parameters
+   *
+   * @return string
+   */
   public function getVideos(Request $request) {
     $videos = $this->generateBaseQuery($request);
 
     return $videos->get();
+  }
+
+
+  public function getVideoById(Request $request, $videoId) {
+    $video = Video::with('genres');
+
+    return $video->find($videoId);
   }
 
   // Checks the request and generates a base query from it
@@ -63,7 +76,7 @@ class SearchController extends Controller {
 
       $videos = $videos->skip($offset);
     }
-    
+
     return $videos;
   }
 

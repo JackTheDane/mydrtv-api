@@ -34,19 +34,8 @@ $router->group(['prefix' => 'search'], function () use ($router) {
 
 });
 
+$router->get('/videos', 'SearchController@getVideos');
+
+$router->get('/videos/{query}', 'SearchController@getVideoById');
+
 $router->get('/genres', 'SearchController@getAllGenres');
-
-// -- Genre routes
-$router->group(['prefix' => 'genre'], function () use ($router) {
-
-  $router->get('/', function () {
-    return;
-  });
-
-  // Genre only
-  $router->get('/{genre}', 'SearchController@getByGenre');
-
-  // Genre and year
-  $router->get('/{genre}/year/{year}', 'SearchController@getByGenreYear');
-
-});
