@@ -22,7 +22,7 @@ class SearchController extends Controller {
    * @return string
    */
   public function getByQuery(Request $request, $query) {
-    $decodedQuery = urldecode($query);
+    $decodedQuery = trim(urldecode($query));
 
     $videos = $this->generateBaseQuery($request);
 
@@ -43,7 +43,8 @@ class SearchController extends Controller {
 
 
   public function getVideoById(Request $request, $videoId) {
-    $video = Video::with('genres');
+    $video = Video::with('genres')
+      ;
 
     return $video->find($videoId);
   }
