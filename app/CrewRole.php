@@ -4,9 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Actor extends Model 
-{
-  // Turns off timestamps on the table
+class CrewRole extends Model {
+
+  /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'crewroles';
+  
   public $timestamps = false;
 
   /**
@@ -15,8 +21,7 @@ class Actor extends Model
    * @var array
    */
   protected $fillable = [
-      'name',
-      'image_path'
+      'name'
   ];
 
   /**
@@ -29,10 +34,10 @@ class Actor extends Model
   ];
 
   /**
-   * The videos that belongs to the Actor
+   * The videos the crew member has been part of
    */
-  public function videos() {
-    return $this->belongsToMany('App\Video', 'video_actor');
+  public function crewMembers() {
+    return $this->belongsToMany('App\Video', 'video_crew', 'crewrole_id', 'crewmember_id');    
   }
 
 }
