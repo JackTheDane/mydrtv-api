@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Video extends Model 
+class VideoLike extends Model 
 {
   
     public $timestamps = false;
@@ -13,12 +13,16 @@ class Video extends Model
      * The attributes that are mass assignable.
      *
      * @var array
+     * 
+     * @var user_id string
+     * @var video_id string
+     * @var like_type string | like || disliked
+     * 
      */
     protected $fillable = [
-        'title', 
-        'description',
-        'release_date',
-        'poster_path'
+        'user_id',
+        'video_id',
+        'like_type'
     ];
 
     /**
@@ -33,8 +37,8 @@ class Video extends Model
     /**
      * The genres the movie belongs to
      */
-    public function genres() {
-        return $this->belongsToMany('App\Genre', 'video_genre');
-    }
+    // public function videos() {
+    //     return $this->belongsToMany('App\Genre', 'video_genre');
+    // }
 
 }

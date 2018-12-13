@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Genre extends Model 
+class Actor extends Model 
 {
   // Turns off timestamps on the table
   public $timestamps = false;
@@ -15,7 +15,8 @@ class Genre extends Model
    * @var array
    */
   protected $fillable = [
-      'name'
+      'name',
+      'image_path'
   ];
 
   /**
@@ -28,11 +29,11 @@ class Genre extends Model
   ];
 
   /**
-   * The videos that belongs to the genre
+   * The videos that belongs to the Actor
    */
   public function videos()
   {
-      return $this->belongsToMany('App\Video', 'video_genre');
+      return $this->belongsToMany('App\Video', 'video_actor');
   }
 
 }

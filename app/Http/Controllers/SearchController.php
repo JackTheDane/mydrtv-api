@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 use App\Video;
 use App\Genre;
 
 class SearchController extends Controller {
+
+  // TODO: Tilføj validering for data, for at undgår syntax errors
 
 
 // ---- Query methods ---- //
@@ -18,166 +21,60 @@ class SearchController extends Controller {
    * @param  string  $query
    * @return string
    */
-  public function getByQuery($query) {
-    // $videos = Video::all(); // Gets all the videos
+  public function getByQuery(Request $request, $query) {
     $decodedQuery = urldecode($query);
 
-    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'genres.name as genres')
-      ->where('title', 'like', "%$decodedQuery%")
-      ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
-      ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
-      ->get();
+    $videos = $this->generateBaseQuery($request);
 
+    return $videos->where('title', 'like', "%$decodedQuery%")->get();
+  }
+
+  public function getVideos(Request $request) {
+    $videos = $this->generateBaseQuery($request);
+
+    return $videos->get();
+  }
+
+  // Checks the request and generates a base query from it
+  private function generateBaseQuery(Request $request) {
+    // Check if a limit was set, if not
+    $limit = !empty($request->get('limit'))
+    ? $request->get('limit')
+    : 20;
+
+    // If genre param was set, get videos via genre instead
+    $videos = empty($request->get('genre'))
+      ? (Video::take($limit))
+      : (Genre::find( $request->get('genre') )
+        ->videos()
+        ->take($limit));
+      
+
+    $videos = $videos->with('genres');
+
+    if ( !empty($request->get('year')) ) {
+      $year = $request->get('year');
+
+      $videos = $videos->where('release_date', 'like', "$year%");
+    }
+
+    if ( !empty($request->get('offset')) ) {
+      $offset = $request->get('offset');
+
+      $videos = $videos->skip($offset);
+    }
+    
     return $videos;
   }
 
-  // ---- Genre methods ---- //
-
+  // ---- Get all genres ---- //
   /**
-   * Get results, based on genre
-   *
-   * @param  string  $genre
-   * 
-   * @return string
-   */
-  public function getByGenre($genre) {
-    $decodedGenre = urldecode($genre);
-
-// select('title', 'description', 'length', 'release_date', 'poster_path', 'name as genres')
-
-    $videos = Genre::where('name', $decodedGenre)
-      ->first()
-      ->videos()
-      ->select('videos.id', 'title', 'description', 'length', 'release_date', 'poster_path')
-      ->get();
-
-    return $videos;
-
-    // return "Genre: $genre";
-  }
-
-  // ---- Year methods ---- //
-
-  /**
-   * Get results, based on year
-   *
-   * @param  int  $year 
-   * 
-   * @return string
-   */
-  public function getByYear($year) {
-    $videos = Video::where('release_date', 'like', "$year%")
-      ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
-      ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
-      ->get();
-
-    return $videos;
-  }
-  
-
-  // ---- Combined query, year and genre methods ---- //
-
-  /**
-   * Get results, based on year and genre
-   *
-   * @param  string  $genre
-   * @param  int  $year 
-   * 
-   * @return string
-   */
-  public function getByGenreYear($genre, $year) {
-    $decodedGenre = urldecode($genre);
-
-    $videos = Genre::where('name', '=', $decodedGenre)
-      ->first()
-      ->videos()
-      ->where('release_date', 'like', "$year%")
-      ->get();
-
-    return $videos;
-  }
-
-   /**
    * Get results, based on query and year
-   *
-   * @param  string  $query
-   * @param  int  $year
    * 
-   * @return string
+   * @return array
    */
-  public function getByQueryYear($query, $year) {
-    $decodedQuery = urldecode($query);
-
-    $videos = Video::where([
-      ['title', 'like', "%$decodedQuery%"],
-      ['release_date', 'like', "$year%"]
-    ])
-    ->leftJoin('video_genre', 'videos.id', '=', 'video_genre.video_id')
-    ->join('genres', 'genres.id', '=', 'video_genre.genre_id')
-    ->get();
-    
-    return $videos;
-  }
-
-  /**
-   * Get results, based on query and genre
-   *
-   * @param  string  $query
-   * @param  string  $genre
-   * 
-   * @return string
-   */
-  public function getByQueryGenre($query, $genre) {
-    $decodedQuery = urldecode($query);
-    $decodedGenre = urldecode($genre);
-
-    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'genres.name as genres')
-      ->where('title', 'like', "%$decodedQuery%")
-      ->join('video_genre', 'videos.id', '=', 'video_genre.video_id')
-      ->join('genres', function($q) use ($decodedGenre) {
-        $q->on('genres.id', '=', 'video_genre.genre_id')
-          ->where('genres.name', '=', $decodedGenre);
-      })
-      ->get();
-    
-    return $videos;
-  }
-
-  /**
-   * Get results, based on query, genre and year
-   *
-   * @param  string  $query
-   * @param  string  $genre
-   * @param  int  $year
-   * 
-   * @return string
-   */
-  public function getByQueryGenreYear($query, $genre, $year) {
-    $decodedQuery = urldecode($query);
-    $decodedGenre = urldecode($genre);
-
-    $videos = Video::select('title', 'description', 'length', 'release_date', 'poster_path', 'genres.name as genres')
-      ->where([
-        ['title', 'like', "%$decodedQuery%"],
-        ['release_date', 'like', "$year%"]
-      ])
-      ->join('video_genre', 'videos.id', '=', 'video_genre.video_id')
-      ->join('genres', function($q) use ($decodedGenre) {
-        $q->on('genres.id', '=', 'video_genre.genre_id')
-          ->where('genres.name', '=', $decodedGenre);
-      })
-      ->get();
-
-    // $videos = Genre::where('name', '=', $decodedGenre)
-    // ->first()
-    // ->videos()
-    // ->where([
-    //   ['release_date', 'like', "$year%"],
-    //   ['title', 'like', "%$decodedQuery%"]
-    // ])
-    // ->get();
-
-    return $videos;
+  public function getAllGenres() {
+    return Genre::all();
   }
 
 }
