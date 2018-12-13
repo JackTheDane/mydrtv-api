@@ -45,7 +45,9 @@ class SearchController extends Controller {
   public function getVideoById(Request $request, $videoId) {
     $video = Video::with('actors')
       ->with('genres')
-      ->with('crewMembers.crewRole');
+      ->with(['crewMembers.crewRoles' => function($q) use ($videoId) {
+        $q->where('video_crew.video_id', '=', $videoId);
+      }]);
 
     return $video->find($videoId);
   }

@@ -42,9 +42,9 @@ class CrewMember extends Model {
   }
 
   /**
-   * The role of the crew member
+   * The roles of the crew member
    */
-  public function crewRole() {
+  public function crewRoles() {
     return $this->belongsToMany('App\CrewRole', 'video_crew', 'crewmember_id', 'crewrole_id');
   }
 
